@@ -1,0 +1,23 @@
+{
+	"name": "Dom411",
+	"title": "Dom411",
+	"description": "An event handling plugin for DOM manipulation libraries",
+	"version": "0.1.0",
+	"homepage": "https://github.com/jkroso/Dom411",
+	"author": {
+		"name": "Jakeb Rosoman",
+		"email": "jkroso@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/jkroso/Dom411.git"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/jkroso/Dom411/master/LICENSE-MIT"
+		}
+	],
+	"dependencies": {},
+	"keywords": []
+}
