@@ -141,6 +141,14 @@ define(['Adept', 'Observer'], function ($, Observer) {
         return this
     }
 
+    $.fn.once = function (topics, fn, bubbles) {
+        function callback (e) {
+            self.off(topics, callback, bubbles)
+            fn.call(this)
+        }
+        this.on(topics, callback, bubbles)
+    }
+
     $.fn.delegate = function (selector, topics, fn, bubbles) {
         this.each(function (node) {
             function callback (e) {
