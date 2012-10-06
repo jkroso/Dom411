@@ -92,9 +92,7 @@ define(['Adept', 'Observer'], function ($, Observer) {
         return event
     }
 
-    $.Event = CustomEvent
-
-    $.fn.trigger = function (topic, data) {
+    $.fn.publish = function (topic, data) {
         if ( topic instanceof Event ) {
             this.each(function () {
                 this.dispatchEvent(CustomEvent(topic))
@@ -115,7 +113,7 @@ define(['Adept', 'Observer'], function ($, Observer) {
         return this
     }
 
-    $.fn.on = function (topics, fn, bubbles) {
+    $.fn.subscribe = function (topics, fn, bubbles) {
         if ( typeof bubbles !== 'boolean' ) bubbles = true
         if ( typeof topics === 'string' ) {
             this.each(function () {
@@ -143,29 +141,29 @@ define(['Adept', 'Observer'], function ($, Observer) {
 
     $.fn.once = function (topics, fn, bubbles) {
         function callback (e) {
-            self.off(topics, callback, bubbles)
+            self.unsubscribe(topics, callback, bubbles)
             fn.call(this)
         }
         this.on(topics, callback, bubbles)
     }
 
-    $.fn.delegate = function (selector, topics, fn, bubbles) {
+    $.fn.forward = function (selector, topics, fn, bubbles) {
         this.each(function (node) {
             function callback (e) {
                 var target = e.target
-                do {
+                while (target !== this) {
                     if ( target.matchesSelector(selector) ) {
                         return fn.call(target, e)
                     }
                     target = target.parentElement
-                } while (target !== this)
+                }
             }
-            $(this).on(topics, callback, bubbles)
+            $(this).subscribe(topics, callback, bubbles)
         })
         return this
     }
     
-    $.fn.off = function (topics, fn, bubbles) {
+    $.fn.unsubscribe = function (topics, fn, bubbles) {
         var args = arguments
         if ( typeof topics === 'string' ) {
             if ( typeof bubbles !== 'boolean' ) bubbles = true
