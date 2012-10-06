@@ -18,6 +18,8 @@
 			"url": "https://github.com/jkroso/Dom411/master/LICENSE-MIT"
 		}
 	],
-	"dependencies": {},
+	"dependencies": {
+		"grunt-requirejs": ""
+	},
 	"keywords": []
 }

@@ -6,17 +6,19 @@ require.config({
         },
         chai : {
             exports : 'chai'
+        },
+        Adept: {
+            exports: '$'
         }
     },
     paths : {
         mocha : '../tests/mocha',
         chai : '../tests/chai',
-        Observer: '../../Observer/dist/Observer',
-        Adept: '../../adept.js/adept'
+        Adept: '/Libraries/jquery-latest'
     }
 })
 
-require(['require', 'mocha', 'chai'], function (require, mocha, chai) {
+require(['require', 'mocha', 'chai', 'Adept'], function (require, mocha, chai, $) {
     window.should = chai.Should()
     window.expect = chai.expect
 

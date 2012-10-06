@@ -11,9 +11,16 @@ module.exports = function(grunt) { 'use strict';
 				'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 				' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */'
 		},
+		requirejs: {
+            baseUrl : "src",
+            name: 'Dom411',
+            // exclude: ['../../Observer/lib/Observer'],
+            out : 'dist/Dom411.js',
+            optimize : "none"
+        },
 		concat: {
 			dist: {
-				src: ['<banner>', '<file_strip_banner:src/<%= pkg.name %>.js>'],
+				src: ['<banner>', '<file_strip_banner:dist/<%= pkg.name %>.js>'],
 				dest: 'dist/<%= pkg.name %>.js'
 			}
 		},
@@ -29,6 +36,7 @@ module.exports = function(grunt) { 'use strict';
 		}
 	})
 
-	grunt.registerTask('default', 'concat min')
+    grunt.loadNpmTasks('grunt-requirejs');
 
+	grunt.registerTask('default', 'requirejs concat min')
 };

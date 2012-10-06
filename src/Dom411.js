@@ -1,4 +1,4 @@
-define(['Adept', 'Observer'], function ($, Observer) {
+define(['../../Observer/lib/Observer'], function (Observer) {
     Observer = Observer.constructor
     
     // Shim browser support
@@ -91,6 +91,8 @@ define(['Adept', 'Observer'], function ($, Observer) {
         })
         return event
     }
+
+    $.Dom411 = CustomEvent
 
     $.fn.publish = function (topic, data) {
         if ( topic instanceof Event ) {
@@ -194,14 +196,12 @@ define(['Adept', 'Observer'], function ($, Observer) {
                 var subject = subjects.get(this)
                 if ( ! subject ) return
                 Object.keys(subject._bubbling).forEach(function (key) {
-                    delete subject._bubbling[key]
                     this.removeEventListener(key, dispatch, false)
                 }, this)
                 Object.keys(subject._capturing).forEach(function (key) {
-                    delete subject._capturing[key]
                     this.removeEventListener(key, dispatch, true)
                 }, this)
-                subject.off()
+                subjects.delete(this)
             })
         }
         return this
