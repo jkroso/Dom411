@@ -34,6 +34,7 @@ define([
     }
     var subjects = new WeakMap
 
+    // The handler used for all DOM events. It plucks event type info of the event object and hands it to the Observer instance that was mapped to `this` DOM node
     var dispatch = (function (invokeList, collect, branchingCollect, subjects) {
         return function (e) {
             return invokeList(
@@ -51,6 +52,7 @@ define([
         }
     }(Observer.invokeList, Observer.collect, Observer.branchingCollect,subjects))
 
+    // Create an instance of Observer and add it to the node-subject map
     function createSubject (node) {
         var s = Object.defineProperties(new Observer, {
             _capturing : {
@@ -66,6 +68,7 @@ define([
         return s
     }
 
+    // Find the first top level topic in a topic sequence string. e.g. travel.left would return travel. If in the translation table this top level topic will be translated in the native version
     function topType (topic) {
         var firstDot = topic.indexOf('.'),
             eventType = firstDot >= 0 ? topic.slice(0, firstDot) : topic        
@@ -87,6 +90,7 @@ define([
         return count
     }
 
+    // A helper for creating Event instances
     function CustomEvent (options) {
         var event = new Event('library', {
             bubbles : true,
@@ -134,6 +138,7 @@ define([
                 }, this)
                 subject.on(topics, this, fn)
             })
+        // Assume there is no topic; create a top level event
         } else {
             var subject = subjects.get(this) || createSubject(this)
             if ( typeof fn === 'boolean' ) bubbles = fn
@@ -148,25 +153,23 @@ define([
     }
 
     $.fn.next = function (topics, fn, bubbles) {
-        function callback (e) {
+        // Keep a ref to the original set so all nodes will have this handler removed not just the one that actually gets triggered
+        var self = this
+        this.on(topics, function callback (e) {
             self.off(topics, callback, bubbles)
             fn.call(this)
-        }
-        this.on(topics, callback, bubbles)
+        }, bubbles)
     }
 
     $.fn.delegate = function (selector, topics, fn, bubbles) {
         this.each(function (node) {
-            function callback (e) {
+            $(this).on(topics, function delegater (e) {
                 var target = e.target
                 while (target !== this) {
-                    if ( target.matchesSelector(selector) ) {
-                        return fn.call(target, e)
-                    }
+                    if ( target.matchesSelector(selector) ) return fn.call(target, e)
                     target = target.parentElement
                 }
-            }
-            $(this).on(topics, callback, bubbles)
+            }, bubbles)
         })
         return this
     }
