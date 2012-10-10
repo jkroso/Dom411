@@ -1,4 +1,8 @@
-define(['../../Observer/lib/Observer'], function (Observer) {
+define([
+    '../../Observer/lib/Observer',
+    '../../Context/src/Context'
+], function (Observer, $) {
+    'use strict';
     Observer = Observer.constructor
     
     // Shim browser support
@@ -8,9 +12,10 @@ define(['../../Observer/lib/Observer'], function (Observer) {
         || Element.prototype.msMatchesSelector
         || Element.prototype.oMatchesSelector
         || function (selector) {
-            var nodes = this.parentNode.querySelectorAll(selector)
-            for (var i = 0; i < nodes.length; ++i) {
-                if (nodes[i] === el) return true
+            var nodes = this.parentNode.querySelectorAll(selector),
+                len = nodes.length
+            while (len--) {
+                if (nodes[len] === this) return true
             }
             return false
         }
@@ -24,7 +29,8 @@ define(['../../Observer/lib/Observer'], function (Observer) {
         out   : 'mouseout',
         click : 'mouseup',
         wheel : 'mousewheel',
-        double: 'mouseup'
+        double: 'mouseup',
+        type  : 'input'
     }
     var subjects = new WeakMap
 
@@ -36,11 +42,11 @@ define(['../../Observer/lib/Observer'], function (Observer) {
                     // ...[['mouse', ['up']]]
                     branchingCollect(
                         subjects.get(this),
-                        e.types) :
+                        e.types || [e.type]) :
                     // ...['mouse', 'up']
                     collect(
                         subjects.get(this),
-                        e.types),
+                        e.types || [e.type]),
                 e)
         }
     }(Observer.invokeList, Observer.collect, Observer.branchingCollect,subjects))
@@ -92,9 +98,9 @@ define(['../../Observer/lib/Observer'], function (Observer) {
         return event
     }
 
-    $.Dom411 = CustomEvent
+    $.Event = CustomEvent
 
-    $.fn.publish = function (topic, data) {
+    $.fn.trigger = function (topic, data) {
         if ( topic instanceof Event ) {
             this.each(function () {
                 this.dispatchEvent(CustomEvent(topic))
@@ -115,7 +121,7 @@ define(['../../Observer/lib/Observer'], function (Observer) {
         return this
     }
 
-    $.fn.subscribe = function (topics, fn, bubbles) {
+    $.fn.on = function (topics, fn, bubbles) {
         if ( typeof bubbles !== 'boolean' ) bubbles = true
         if ( typeof topics === 'string' ) {
             this.each(function () {
@@ -141,15 +147,15 @@ define(['../../Observer/lib/Observer'], function (Observer) {
         return this
     }
 
-    $.fn.once = function (topics, fn, bubbles) {
+    $.fn.next = function (topics, fn, bubbles) {
         function callback (e) {
-            self.unsubscribe(topics, callback, bubbles)
+            self.off(topics, callback, bubbles)
             fn.call(this)
         }
         this.on(topics, callback, bubbles)
     }
 
-    $.fn.forward = function (selector, topics, fn, bubbles) {
+    $.fn.delegate = function (selector, topics, fn, bubbles) {
         this.each(function (node) {
             function callback (e) {
                 var target = e.target
@@ -160,12 +166,12 @@ define(['../../Observer/lib/Observer'], function (Observer) {
                     target = target.parentElement
                 }
             }
-            $(this).subscribe(topics, callback, bubbles)
+            $(this).on(topics, callback, bubbles)
         })
         return this
     }
     
-    $.fn.unsubscribe = function (topics, fn, bubbles) {
+    $.fn.off = function (topics, fn, bubbles) {
         var args = arguments
         if ( typeof topics === 'string' ) {
             if ( typeof bubbles !== 'boolean' ) bubbles = true
