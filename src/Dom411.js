@@ -37,17 +37,14 @@ define([
     // The handler used for all DOM events. It plucks event type info of the event object and hands it to the Observer instance that was mapped to `this` DOM node
     var dispatch = (function (invokeList, collect, branchingCollect, subjects) {
         return function (e) {
+            var types = e.types || [e.type]
             return invokeList(
                 // Test the format of the event directive...
-                typeof e.types[0] === 'Array' ?
-                    // ...[['mouse', ['up']]]
-                    branchingCollect(
-                        subjects.get(this),
-                        e.types || [e.type]) :
+                typeof types[0] === 'string' ?
                     // ...['mouse', 'up']
-                    collect(
-                        subjects.get(this),
-                        e.types || [e.type]),
+                    collect(subjects.get(this), types) :
+                    // ...[['mouse', ['up']]]
+                    branchingCollect(subjects.get(this), types),
                 e)
         }
     }(Observer.invokeList, Observer.collect, Observer.branchingCollect,subjects))
@@ -126,7 +123,8 @@ define([
     }
 
     $.fn.on = function (topics, fn, bubbles) {
-        if ( typeof bubbles !== 'boolean' ) bubbles = true
+        // Default the bubbles option to false
+        if ( typeof bubbles !== 'boolean' ) bubbles = false
         if ( typeof topics === 'string' ) {
             this.each(function () {
                 var subject = subjects.get(this) || createSubject(this)
@@ -140,9 +138,10 @@ define([
             })
         // Assume there is no topic; create a top level event
         } else {
-            var subject = subjects.get(this) || createSubject(this)
+            // Check if a bubbles option was provided
             if ( typeof fn === 'boolean' ) bubbles = fn
             this.each(function () {
+                var subject = subjects.get(this) || createSubject(this)
                 if ( incCount('library', bubbles ? subject._capturing : subject._bubbling) === 1 ) {
                     this.addEventListener('library', dispatch, bubbles)
                 }
