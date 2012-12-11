@@ -1,6 +1,5 @@
 {
 	"name": "Dom411",
-	"title": "Dom411",
 	"description": "An event handling plugin for DOM manipulation libraries",
 	"version": "0.1.0",
 	"homepage": "https://github.com/jkroso/Dom411",
@@ -19,7 +18,13 @@
 		}
 	],
 	"dependencies": {
-		"grunt-requirejs": ""
 	},
+	"devDependencies": {
+		"bigfile": ""
+	},
+	"scripts": {
+		"build": "bigfile -w dist/Dom411.js -pc -x Dom411"
+	},
+	"main": "src/index.js",
 	"keywords": []
 }
