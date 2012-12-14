@@ -23,7 +23,7 @@
 		"bigfile": ""
 	},
 	"scripts": {
-		"build": "bigfile -w dist/Dom411.js -pc -x Dom411"
+		"build": "make build"
 	},
 	"main": "src/index.js",
 	"keywords": []
